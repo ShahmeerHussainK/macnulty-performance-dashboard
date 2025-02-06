@@ -2,6 +2,8 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, PhoneMissed, Users } from "lucide-react";
 import { AgentMetricsChart } from "@/components/AgentMetricsChart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
 
 type AgentData = {
   name: string;
@@ -27,21 +29,50 @@ const agentsData: Record<number, AgentData> = {
   // Add more agents as needed
 };
 
+const timeRanges = {
+  "7days": "Last 7 Days",
+  "30days": "Last 30 Days",
+  "all": "All Time"
+};
+
 const AgentDetails = () => {
   const { id } = useParams();
-  // Convert string id to number and handle potential undefined case
+  const [timeRange, setTimeRange] = useState<keyof typeof timeRanges>("all");
   const agent = id ? agentsData[parseInt(id)] : undefined;
 
   if (!agent) {
     return <div className="p-8">Agent not found</div>;
   }
 
+  const filterMetricsByDate = (metrics: typeof agent.metrics) => {
+    if (timeRange === "all") return metrics;
+    
+    const now = new Date();
+    const daysToSubtract = timeRange === "7days" ? 7 : 30;
+    const cutoffDate = new Date(now.setDate(now.getDate() - daysToSubtract));
+    
+    return metrics.filter(metric => new Date(metric.date) >= cutoffDate);
+  };
+
+  const filteredMetrics = filterMetricsByDate(agent.metrics);
   const latestMetrics = agent.metrics[agent.metrics.length - 1];
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-7xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">{agent.name}'s Performance</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">{agent.name}'s Performance</h1>
+          <Select value={timeRange} onValueChange={(value: keyof typeof timeRanges) => setTimeRange(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select time range" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(timeRanges).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
@@ -86,7 +117,7 @@ const AgentDetails = () => {
             <CardTitle>Performance Metrics</CardTitle>
           </CardHeader>
           <CardContent>
-            <AgentMetricsChart data={agent.metrics} />
+            <AgentMetricsChart data={filteredMetrics} />
           </CardContent>
         </Card>
       </div>
