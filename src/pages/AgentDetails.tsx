@@ -3,7 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, PhoneMissed, Users } from "lucide-react";
 import { AgentMetricsChart } from "@/components/AgentMetricsChart";
 
-const agentsData = {
+type AgentData = {
+  name: string;
+  metrics: Array<{
+    date: string;
+    missedCalls: number;
+    newClients: number;
+    availability: number;
+  }>;
+};
+
+const agentsData: Record<number, AgentData> = {
   1: {
     name: "John Doe",
     metrics: [
@@ -19,7 +29,8 @@ const agentsData = {
 
 const AgentDetails = () => {
   const { id } = useParams();
-  const agent = agentsData[id as keyof typeof agentsData];
+  // Convert string id to number and handle potential undefined case
+  const agent = id ? agentsData[parseInt(id)] : undefined;
 
   if (!agent) {
     return <div className="p-8">Agent not found</div>;
