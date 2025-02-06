@@ -1,8 +1,8 @@
+import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const agentsData = [
@@ -15,8 +15,8 @@ const agentsData = [
 
 const Agents = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [performanceFilter, setPerformanceFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [performanceFilter, setPerformanceFilter] = React.useState<string>("all");
 
   const filteredAgents = agentsData
     .filter(agent => 
@@ -59,7 +59,7 @@ const Agents = () => {
               <SelectItem value="all">All Performance</SelectItem>
               <SelectItem value="high">High (≥90%)</SelectItem>
               <SelectItem value="medium">Medium (85-89%)</SelectItem>
-              <SelectItem value="low">Low (<85%)</SelectItem>
+              <SelectItem value="low">Low (&lt;85%)</SelectItem>
             </SelectContent>
           </Select>
         </div>
